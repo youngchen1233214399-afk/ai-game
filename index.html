@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Signal Garden — Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============================================================
+       Signal Garden — single page, three screens
+       Switching is handled by toggling .active on .screen elements.
+       ============================================================ -->
+
+  <div id="app">
+
+    <!-- ====================== HUB / SAFE ROOM ====================== -->
+    <section id="screen-hub" class="screen active">
+      <header class="hub-header">
+        <h1 class="title">SIGNAL <span class="accent">GARDEN</span></h1>
+        <p class="subtitle">// a quiet system that watches how you move //</p>
+      </header>
+
+      <div class="hub-grid">
+        <!-- Observer NPC -->
+        <article class="panel observer">
+          <div class="panel-title">[ The Observer ]</div>
+          <div id="observer-text" class="observer-text">
+            Welcome. The garden is listening. When you are ready, enter.
+          </div>
+        </article>
+
+        <!-- Run preparation -->
+        <article class="panel prep">
+          <div class="panel-title">[ Prepare a Run ]</div>
+
+          <div class="prep-row">
+            <span class="label">Run number</span>
+            <span id="hub-run-number" class="value">01</span>
+          </div>
+          <div class="prep-row">
+            <span class="label">Signal Seeds</span>
+            <span id="hub-seeds" class="value">0</span>
+          </div>
+
+          <div class="prep-section">
+            <div class="prep-section-title">choose a tool</div>
+            <div id="tool-list" class="tool-list"><!-- buttons injected --></div>
+          </div>
+
+          <button id="start-run-btn" class="primary-btn">&gt; ENTER GARDEN</button>
+        </article>
+
+        <!-- Permanent upgrades -->
+        <article class="panel upgrades">
+          <div class="panel-title">[ Permanent Upgrades ]</div>
+          <div id="upgrade-list" class="upgrade-list"><!-- buttons injected --></div>
+        </article>
+
+        <!-- Last run reflection -->
+        <article class="panel reflection-panel">
+          <div class="panel-title">[ Last Reflection ]</div>
+          <pre id="last-reflection" class="reflection-text">No runs yet. The garden is empty of memory.</pre>
+        </article>
+      </div>
+
+      <footer class="hub-footer">
+        <button id="mute-btn-hub" class="mini-btn">audio: on</button>
+        <button id="reset-btn" class="mini-btn danger">reset progress</button>
+      </footer>
+    </section>
+
+    <!-- ====================== RUN / MAZE ====================== -->
+    <section id="screen-run" class="screen">
+      <div class="run-layout">
+        <!-- Maze canvas -->
+        <div class="maze-wrap">
+          <canvas id="maze-canvas" width="720" height="480"></canvas>
+          <div id="director-banner" class="director-banner hidden"></div>
+        </div>
+
+        <!-- Side HUD -->
+        <aside class="hud">
+          <div class="hud-block">
+            <div class="hud-row">
+              <span class="label">RUN</span>
+              <span id="hud-run" class="value">01</span>
+            </div>
+            <div class="hud-row">
+              <span class="label">TIMER</span>
+              <span id="hud-timer" class="value">00:00</span>
+            </div>
+          </div>
+
+          <div class="hud-block">
+            <div class="bar-row">
+              <span class="bar-label">FOCUS</span>
+              <div class="bar"><div id="bar-focus" class="bar-fill focus"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">CURIOSITY</span>
+              <div class="bar"><div id="bar-curiosity" class="bar-fill curiosity"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">CHAOS</span>
+              <div class="bar"><div id="bar-chaos" class="bar-fill chaos"></div></div>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">OVERLOAD</span>
+              <div class="bar"><div id="bar-overload" class="bar-fill overload"></div></div>
+            </div>
+          </div>
+
+          <div class="hud-block">
+            <div class="hud-row">
+              <span class="label">SEEDS</span>
+              <span id="hud-seeds" class="value">0</span>
+            </div>
+            <div class="hud-row">
+              <span class="label">RE-ENTRY</span>
+              <span id="hud-reentry" class="value">0</span>
+            </div>
+            <div class="hud-row">
+              <span class="label">TOOL</span>
+              <span id="hud-tool" class="value small">—</span>
+            </div>
+          </div>
+
+          <div class="hud-block">
+            <div class="label">// vine</div>
+            <div id="vine" class="vine">~~~~~~~~</div>
+          </div>
+
+          <div class="hud-block">
+            <div class="label">// system log</div>
+            <ul id="log" class="log"></ul>
+          </div>
+
+          <div class="hud-block hud-controls">
+            <button id="mute-btn-run" class="mini-btn">audio: on</button>
+            <button id="abort-btn" class="mini-btn danger">abort</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ====================== RUN SUMMARY ====================== -->
+    <section id="screen-summary" class="screen">
+      <div class="summary-card panel">
+        <div class="panel-title">[ Run Reflection ]</div>
+        <pre id="summary-text" class="reflection-text"></pre>
+        <div class="summary-actions">
+          <button id="back-to-hub-btn" class="primary-btn">&gt; RETURN TO HUB</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
