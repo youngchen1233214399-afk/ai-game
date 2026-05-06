@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Signal Garden</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ================================================================
+       Signal Garden — single-page game
+       The canvas is the world. Everything else (HUD, dialogue, summary,
+       prompts) is DOM, rendered on top, so we can keep crisp text.
+       ================================================================ -->
+
+  <div id="app">
+
+    <!-- The world canvas. Resized by main.js to match its container. -->
+    <canvas id="game" width="960" height="600"></canvas>
+
+    <!-- Floating "[E] Talk" / "[E] Enter" prompt -->
+    <div id="prompt" class="prompt hidden">
+      <span class="key">E</span><span id="prompt-label">interact</span>
+    </div>
+
+    <!-- Side HUD shown only during a run -->
+    <aside id="hud" class="hud hidden">
+      <div class="hud-block">
+        <div class="hud-row"><span class="label">RUN</span><span id="hud-run" class="value">01</span></div>
+        <div class="hud-row"><span class="label">TIMER</span><span id="hud-timer" class="value">00:00</span></div>
+      </div>
+      <div class="hud-block">
+        <div class="bar-row"><span class="bar-label">FOCUS</span>     <div class="bar"><div id="bar-focus"     class="bar-fill focus"></div></div></div>
+        <div class="bar-row"><span class="bar-label">CURIOSITY</span> <div class="bar"><div id="bar-curiosity" class="bar-fill curiosity"></div></div></div>
+        <div class="bar-row"><span class="bar-label">CHAOS</span>     <div class="bar"><div id="bar-chaos"     class="bar-fill chaos"></div></div></div>
+        <div class="bar-row"><span class="bar-label">OVERLOAD</span>  <div class="bar"><div id="bar-overload"  class="bar-fill overload"></div></div></div>
+      </div>
+      <div class="hud-block">
+        <div class="hud-row"><span class="label">SEEDS</span>   <span id="hud-seeds"   class="value">0</span></div>
+        <div class="hud-row"><span class="label">RE-ENTRY</span><span id="hud-reentry" class="value">0</span></div>
+        <div class="hud-row"><span class="label">TOOL</span>    <span id="hud-tool"    class="value small">—</span></div>
+      </div>
+      <div class="hud-block"><div class="label">// vine</div><div id="vine" class="vine">~~~~~~~~</div></div>
+      <div class="hud-block"><div class="label">// system log</div><ul id="log" class="log"></ul></div>
+      <div class="hud-block hud-controls">
+        <button id="mute-btn" class="mini-btn">audio: on</button>
+        <button id="abort-btn" class="mini-btn danger">abort</button>
+      </div>
+    </aside>
+
+    <!-- Director banner (transient, top-of-canvas) -->
+    <div id="director-banner" class="director-banner hidden"></div>
+
+    <!-- Dialogue box (NPC system). Populated by js/dialogue.js -->
+    <div id="dialogue" class="dialogue hidden">
+      <div class="dialogue-name" id="dialogue-name">The Observer</div>
+      <div class="dialogue-text" id="dialogue-text"></div>
+      <div class="dialogue-options" id="dialogue-options"></div>
+      <div class="dialogue-hint">[E] continue · [Esc] leave</div>
+    </div>
+
+    <!-- Run summary overlay -->
+    <div id="summary" class="summary hidden">
+      <div class="summary-card">
+        <div class="panel-title">[ Run Reflection ]</div>
+        <pre id="summary-text" class="reflection-text"></pre>
+        <button id="summary-back" class="primary-btn">&gt; RETURN TO HUB</button>
+      </div>
+    </div>
+
+    <!-- Title intro overlay (shown once on first load before audio gesture) -->
+    <div id="title" class="title-screen">
+      <h1 class="title-text">SIGNAL <span class="accent">GARDEN</span></h1>
+      <p class="title-sub">// a quiet system that watches how you move //</p>
+      <p class="title-controls">WASD move &nbsp;·&nbsp; E interact &nbsp;·&nbsp; Esc leave dialogue</p>
+      <button id="title-begin" class="primary-btn">&gt; ENTER THE HALL</button>
+    </div>
+
+    <!-- Fade overlay used between scenes -->
+    <div id="fade" class="fade"></div>
+
+  </div>
+
+  <!-- =====================================================
+       Module load order. Every file attaches to window.SG.
+       Pure dependency-on-globals to keep file:// usable.
+       ===================================================== -->
+  <script src="js/constants.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/interaction.js"></script>
+  <script src="js/dialogue.js"></script>
+  <script src="js/attention.js"></script>
+  <script src="js/summary.js"></script>
+  <script src="js/hub.js"></script>
+  <script src="js/run.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
