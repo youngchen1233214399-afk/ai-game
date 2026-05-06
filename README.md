@@ -1,21 +1,19 @@
-# Signal Garden — Prototype
+# Signal Garden
 
-An attention-based roguelite maze game. The garden watches how you move:
-your forward motion, your hesitations, your switches, your re-entries.
-Those behaviours feed four attention states — **Focus**, **Curiosity**,
-**Chaos**, **Overload** — which in turn reshape the maze, the audio, and
-the way an in-hub NPC ("The Observer") talks to you.
+A 2.5D top-down attention-based roguelite. The system watches how you
+move — your rhythm, hesitations, switches, returns — and translates
+that into four attention states: **Focus, Curiosity, Chaos, Overload**.
+Those states reshape the next maze, the audio, and what The Observer
+says when you return to the hub.
 
-This is an MVP / playable prototype. It is intentionally minimal in art
-direction (neo-noir terminal lines) and focuses on game-feel and the
-systemic loop. ADHD-inspired attention model — framed as a system, not as
-a diagnosis or a failure.
+ADHD-inspired attention model, framed as a system that watches and
+adapts, not as failure or diagnosis. Original world, characters, and art
+direction.
 
 ## Run it
 
-There is no build step, no backend, no dependencies.
-
-Either open `index.html` directly in a modern browser, or serve the folder:
+No build step, no backend, no external assets. Either open `index.html`
+in a modern browser, or serve the folder:
 
 ```bash
 cd /path/to/this/repo
@@ -23,61 +21,75 @@ python3 -m http.server 8000
 # then visit http://localhost:8000
 ```
 
-Audio uses the Web Audio API and starts on the first run (browser
-autoplay rules). There is a mute toggle in the hub and during a run.
+If you want audio, the page must be served over HTTP rather than
+opened with `file://` in some browsers, because of `AudioContext`
+gesture rules. Audio starts on first click.
 
 ## Controls
 
-- **WASD** or **arrow keys** — move
-- **Space** or **E** — interact with a glowing object
-- **R** — use the Re-entry Marker tool (if selected) to teleport back to
-  your last stable point on the main route
+| Key                              | Action                          |
+|----------------------------------|---------------------------------|
+| WASD or arrow keys               | move                            |
+| E                                | interact (hub) · dialogue advance |
+| 1-9                              | dialogue option pick            |
+| Esc                              | leave dialogue                  |
+| R                                | use Re-entry Marker (if held)   |
 
 ## Loop
 
-1. **Hub / Safe Room.** Pick a tool. Optionally spend Signal Seeds on a
-   permanent upgrade. Read what The Observer says about your last run.
-2. **Run.** Explore a maze for ~110 seconds. The garden watches your
-   movement and updates the four attention states. The "Attention
-   Director" fires adaptive events every few seconds (temptations, hidden
-   paths, rest zones, glitches, landmarks) based on your state.
-3. **End.** Reach the exit, hit the Chaos or Overload threshold, or run
-   out of time. A short reflection appears.
+1. **Hub.** A dark fantasy garden hall: stone columns, glowing plants,
+   a central ritual ring, ambient dust, soft vignette. Walk around with
+   WASD. Two interactables:
+   - **The Observer** — hooded NPC. Press E to open a dialogue. Asks
+     after your last run, lets you pick a run-time tool, lets you spend
+     Signal Seeds on permanent upgrades.
+   - **The Portal** — the green ritual gate. Press E to begin a run.
+2. **Run.** A 3×2 grid of rooms connected by doorways, generated from
+   modules (rest fountain, glowing flower, decorative column, etc.).
+   Camera follows the player. The HUD shows attention bars, timer,
+   tool, vine, system log. The Attention Director ticks every few
+   seconds and fires events (temptations, hidden paths, glitches, rest
+   patches, landmarks, run-end thresholds) based on your state.
+3. **End.** Reach the exit gate, hit Chaos or Overload threshold, or
+   run out of time. A reflection appears.
 4. **Return.** The next maze is shaped by your last dominant state:
    - chaos prev → more rest zones and landmarks
-   - focus prev → more side-path temptations and loops
-   - curiosity prev → more glowing objects and hidden paths
-   - overload prev → more open / less dense
-   - quick exit → bumped complexity
+   - focus prev → more side-path temptations
+   - curiosity prev → more glowing flowers and hidden paths
+   - overload prev → more open layout
+   - exited fast → bumped complexity
 
-Progress (seeds, owned upgrades, run number, last run) persists in
-`localStorage` under the key `signal-garden:v1`.
+Progress (seeds, owned upgrades, run number, last run, selected tool,
+mute) persists in `localStorage` under the key `signal-garden:v2`.
 
-## File layout
+## File layout (refactored modules)
 
-- `index.html` — three screens: hub, run, summary
-- `styles.css` — neo-noir dark theme, glowing accents, vine UI
-- `game.js` — all logic, organised by system:
-  1. Constants & save / progression
-  2. Game state
-  3. Modular maze generator
-  4. Renderer
-  5. Input & player movement
-  6. Behaviour interpreter (movement → attention)
-  7. Attention Director (rule-based AI Director)
-  8. Audio Feedback System (Web Audio API tones)
-  9. NPC reflection generator (templated, no LLM)
-  10. Run lifecycle
-  11. UI bindings
-  12. Boot
+| File                | System                                          |
+|---------------------|-------------------------------------------------|
+| `index.html`        | DOM layout, script load order                   |
+| `styles.css`        | Theme, HUD, dialogue, summary, title overlays   |
+| `js/constants.js`   | tile codes, dimensions, tools, upgrades, palette|
+| `js/state.js`       | save (localStorage) + runtime state             |
+| `js/audio.js`       | Web Audio API drone + ping + lowpass            |
+| `js/art.js`         | procedural drawing primitives (player, NPC, walls, columns, plants, fountain, gate, particles, vignette) |
+| **`js/player.js`**  | **Player Controller** — input, movement, AABB collision |
+| **`js/interaction.js`** | **Interaction System** — proximity prompts + E |
+| **`js/dialogue.js`**| **NPC Dialogue System** — modal, options, keyboard nav |
+| **`js/attention.js`** | **Attention State Manager** — interpreter + director |
+| **`js/hub.js`**     | **Hub Scene** — garden hall, NPC, portal, render loop |
+| **`js/run.js`**     | **Run Scene** — room-graph maze, render loop, run lifecycle |
+| **`js/summary.js`** | **Run Summary Generator** — templated reflection + observer lines |
+| `js/ui.js`          | HUD bindings, summary overlay, title button     |
+| `js/main.js`        | boot, scene switching, game loop, key dispatch  |
 
-A list of post-MVP improvements is at the bottom of `game.js`.
+The seven systems the spec asked for are bolded.
 
 ## Notes on intent
 
-- The four states are not "good" or "bad". Re-entry is treated as
-  meaningful, not as failure.
-- Stillness is treated as information, not punishment.
-- The Observer is short, ambiguous, and quiet. Templates are easy to
-  swap for a real LLM call later (the `runStats` object exposes all the
-  variables a prompt would need).
+- Re-entry is treated as meaningful, not as failure.
+- Stillness is treated as information. Overload is a tone, not a punishment.
+- The Observer is short, ambiguous, quiet. The summary templates are
+  swappable for a real LLM call later — the `runStats` object exposes
+  every variable a prompt would need.
+- All visuals are procedural canvas drawing. No game's characters,
+  names, mythology, UI, or assets are reproduced.

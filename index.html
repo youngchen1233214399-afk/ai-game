@@ -3,160 +3,100 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Signal Garden — Prototype</title>
+  <title>Signal Garden</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- ============================================================
-       Signal Garden — single page, three screens
-       Switching is handled by toggling .active on .screen elements.
-       ============================================================ -->
+  <!-- ================================================================
+       Signal Garden — single-page game
+       The canvas is the world. Everything else (HUD, dialogue, summary,
+       prompts) is DOM, rendered on top, so we can keep crisp text.
+       ================================================================ -->
 
   <div id="app">
 
-    <!-- ====================== HUB / SAFE ROOM ====================== -->
-    <section id="screen-hub" class="screen active">
-      <header class="hub-header">
-        <h1 class="title">SIGNAL <span class="accent">GARDEN</span></h1>
-        <p class="subtitle">// a quiet system that watches how you move //</p>
-      </header>
+    <!-- The world canvas. Resized by main.js to match its container. -->
+    <canvas id="game" width="960" height="600"></canvas>
 
-      <div class="hub-grid">
-        <!-- Observer NPC -->
-        <article class="panel observer">
-          <div class="panel-title">[ The Observer ]</div>
-          <div id="observer-text" class="observer-text">
-            Welcome. The garden is listening. When you are ready, enter.
-          </div>
-        </article>
+    <!-- Floating "[E] Talk" / "[E] Enter" prompt -->
+    <div id="prompt" class="prompt hidden">
+      <span class="key">E</span><span id="prompt-label">interact</span>
+    </div>
 
-        <!-- Run preparation -->
-        <article class="panel prep">
-          <div class="panel-title">[ Prepare a Run ]</div>
-
-          <div class="prep-row">
-            <span class="label">Run number</span>
-            <span id="hub-run-number" class="value">01</span>
-          </div>
-          <div class="prep-row">
-            <span class="label">Signal Seeds</span>
-            <span id="hub-seeds" class="value">0</span>
-          </div>
-
-          <div class="prep-section">
-            <div class="prep-section-title">choose a tool</div>
-            <div id="tool-list" class="tool-list"><!-- buttons injected --></div>
-          </div>
-
-          <button id="start-run-btn" class="primary-btn">&gt; ENTER GARDEN</button>
-        </article>
-
-        <!-- Permanent upgrades -->
-        <article class="panel upgrades">
-          <div class="panel-title">[ Permanent Upgrades ]</div>
-          <div id="upgrade-list" class="upgrade-list"><!-- buttons injected --></div>
-        </article>
-
-        <!-- Last run reflection -->
-        <article class="panel reflection-panel">
-          <div class="panel-title">[ Last Reflection ]</div>
-          <pre id="last-reflection" class="reflection-text">No runs yet. The garden is empty of memory.</pre>
-        </article>
+    <!-- Side HUD shown only during a run -->
+    <aside id="hud" class="hud hidden">
+      <div class="hud-block">
+        <div class="hud-row"><span class="label">RUN</span><span id="hud-run" class="value">01</span></div>
+        <div class="hud-row"><span class="label">TIMER</span><span id="hud-timer" class="value">00:00</span></div>
       </div>
-
-      <footer class="hub-footer">
-        <button id="mute-btn-hub" class="mini-btn">audio: on</button>
-        <button id="reset-btn" class="mini-btn danger">reset progress</button>
-      </footer>
-    </section>
-
-    <!-- ====================== RUN / MAZE ====================== -->
-    <section id="screen-run" class="screen">
-      <div class="run-layout">
-        <!-- Maze canvas -->
-        <div class="maze-wrap">
-          <canvas id="maze-canvas" width="720" height="480"></canvas>
-          <div id="director-banner" class="director-banner hidden"></div>
-        </div>
-
-        <!-- Side HUD -->
-        <aside class="hud">
-          <div class="hud-block">
-            <div class="hud-row">
-              <span class="label">RUN</span>
-              <span id="hud-run" class="value">01</span>
-            </div>
-            <div class="hud-row">
-              <span class="label">TIMER</span>
-              <span id="hud-timer" class="value">00:00</span>
-            </div>
-          </div>
-
-          <div class="hud-block">
-            <div class="bar-row">
-              <span class="bar-label">FOCUS</span>
-              <div class="bar"><div id="bar-focus" class="bar-fill focus"></div></div>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">CURIOSITY</span>
-              <div class="bar"><div id="bar-curiosity" class="bar-fill curiosity"></div></div>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">CHAOS</span>
-              <div class="bar"><div id="bar-chaos" class="bar-fill chaos"></div></div>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">OVERLOAD</span>
-              <div class="bar"><div id="bar-overload" class="bar-fill overload"></div></div>
-            </div>
-          </div>
-
-          <div class="hud-block">
-            <div class="hud-row">
-              <span class="label">SEEDS</span>
-              <span id="hud-seeds" class="value">0</span>
-            </div>
-            <div class="hud-row">
-              <span class="label">RE-ENTRY</span>
-              <span id="hud-reentry" class="value">0</span>
-            </div>
-            <div class="hud-row">
-              <span class="label">TOOL</span>
-              <span id="hud-tool" class="value small">—</span>
-            </div>
-          </div>
-
-          <div class="hud-block">
-            <div class="label">// vine</div>
-            <div id="vine" class="vine">~~~~~~~~</div>
-          </div>
-
-          <div class="hud-block">
-            <div class="label">// system log</div>
-            <ul id="log" class="log"></ul>
-          </div>
-
-          <div class="hud-block hud-controls">
-            <button id="mute-btn-run" class="mini-btn">audio: on</button>
-            <button id="abort-btn" class="mini-btn danger">abort</button>
-          </div>
-        </aside>
+      <div class="hud-block">
+        <div class="bar-row"><span class="bar-label">FOCUS</span>     <div class="bar"><div id="bar-focus"     class="bar-fill focus"></div></div></div>
+        <div class="bar-row"><span class="bar-label">CURIOSITY</span> <div class="bar"><div id="bar-curiosity" class="bar-fill curiosity"></div></div></div>
+        <div class="bar-row"><span class="bar-label">CHAOS</span>     <div class="bar"><div id="bar-chaos"     class="bar-fill chaos"></div></div></div>
+        <div class="bar-row"><span class="bar-label">OVERLOAD</span>  <div class="bar"><div id="bar-overload"  class="bar-fill overload"></div></div></div>
       </div>
-    </section>
+      <div class="hud-block">
+        <div class="hud-row"><span class="label">SEEDS</span>   <span id="hud-seeds"   class="value">0</span></div>
+        <div class="hud-row"><span class="label">RE-ENTRY</span><span id="hud-reentry" class="value">0</span></div>
+        <div class="hud-row"><span class="label">TOOL</span>    <span id="hud-tool"    class="value small">—</span></div>
+      </div>
+      <div class="hud-block"><div class="label">// vine</div><div id="vine" class="vine">~~~~~~~~</div></div>
+      <div class="hud-block"><div class="label">// system log</div><ul id="log" class="log"></ul></div>
+      <div class="hud-block hud-controls">
+        <button id="mute-btn" class="mini-btn">audio: on</button>
+        <button id="abort-btn" class="mini-btn danger">abort</button>
+      </div>
+    </aside>
 
-    <!-- ====================== RUN SUMMARY ====================== -->
-    <section id="screen-summary" class="screen">
-      <div class="summary-card panel">
+    <!-- Director banner (transient, top-of-canvas) -->
+    <div id="director-banner" class="director-banner hidden"></div>
+
+    <!-- Dialogue box (NPC system). Populated by js/dialogue.js -->
+    <div id="dialogue" class="dialogue hidden">
+      <div class="dialogue-name" id="dialogue-name">The Observer</div>
+      <div class="dialogue-text" id="dialogue-text"></div>
+      <div class="dialogue-options" id="dialogue-options"></div>
+      <div class="dialogue-hint">[E] continue · [Esc] leave</div>
+    </div>
+
+    <!-- Run summary overlay -->
+    <div id="summary" class="summary hidden">
+      <div class="summary-card">
         <div class="panel-title">[ Run Reflection ]</div>
         <pre id="summary-text" class="reflection-text"></pre>
-        <div class="summary-actions">
-          <button id="back-to-hub-btn" class="primary-btn">&gt; RETURN TO HUB</button>
-        </div>
+        <button id="summary-back" class="primary-btn">&gt; RETURN TO HUB</button>
       </div>
-    </section>
+    </div>
+
+    <!-- Title intro overlay (shown once on first load before audio gesture) -->
+    <div id="title" class="title-screen">
+      <h1 class="title-text">SIGNAL <span class="accent">GARDEN</span></h1>
+      <p class="title-sub">// a quiet system that watches how you move //</p>
+      <p class="title-controls">WASD move &nbsp;·&nbsp; E interact &nbsp;·&nbsp; Esc leave dialogue</p>
+      <button id="title-begin" class="primary-btn">&gt; ENTER THE HALL</button>
+    </div>
+
+    <!-- Fade overlay used between scenes -->
+    <div id="fade" class="fade"></div>
 
   </div>
 
-  <script src="game.js"></script>
+  <!-- =====================================================
+       Module load order. Every file attaches to window.SG.
+       Pure dependency-on-globals to keep file:// usable.
+       ===================================================== -->
+  <script src="js/constants.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/interaction.js"></script>
+  <script src="js/dialogue.js"></script>
+  <script src="js/attention.js"></script>
+  <script src="js/summary.js"></script>
+  <script src="js/hub.js"></script>
+  <script src="js/run.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
