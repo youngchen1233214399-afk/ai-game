@@ -27,14 +27,15 @@
 
   
   #veil{
-    position:fixed;inset:0;display:grid;
-    grid-template-columns:minmax(0,1.1fr) minmax(19rem,23.5rem);
-    grid-template-rows:minmax(0,1fr) auto;
-    column-gap:clamp(2rem,6vw,7rem);align-items:center;
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:flex-start;
     background:oklch(0.09 0.02 220);overflow:hidden;isolation:isolate;
     color:var(--ink);font-family:var(--font);text-align:left;
     z-index:30;transition:opacity 1.45s ease-out,filter 1.45s ease-out,transform 1.45s ease-out;
     padding:clamp(2.2rem,6vh,4.5rem) clamp(1.6rem,6vw,6.5rem) clamp(1.2rem,3.5vh,2.6rem);
+  }
+  .veil-stack{                                                  /* 全部聚在左侧一列 */
+    display:flex;flex-direction:column;
+    width:min(100%,32rem);gap:1.6rem;
   }
   #veil::before{
     content:"";position:absolute;inset:-1%;z-index:-2;
@@ -57,7 +58,7 @@
   @keyframes veilIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .veil-brand{animation:veilIn 0.9s 0.1s ease-out backwards}
   .veil-menu{animation:veilIn 0.9s 0.3s ease-out backwards}
-  .veil-brand{grid-column:1;grid-row:1;align-self:center;max-width:42rem}
+  .veil-brand{max-width:100%}
   #veil h1{
     display:flex;flex-direction:column;align-items:flex-start;gap:0.52rem;
     font-weight:400;text-indent:0;text-wrap:balance;
@@ -85,8 +86,7 @@
     text-shadow:0 2px 15px oklch(0.04 0.015 220)
   }
   .veil-menu{
-    grid-column:2;grid-row:1;align-self:center;justify-self:end;
-    width:min(100%,21rem);display:grid;gap:0.7rem;transform:translateY(5vh);
+    width:100%;max-width:21rem;display:grid;gap:0.55rem;margin-top:0.6rem;
   }
   #enter{
     position:relative;width:100%;min-height:5.1rem;padding:0.8rem 0.9rem 0.8rem 1.35rem;
@@ -118,11 +118,11 @@
   }
   #enter:active{transform:translateY(0) scale(0.99)}
   .aihook{
-    position:relative;width:max-content;min-height:2.2rem;justify-self:center;
+    position:relative;width:max-content;min-height:2.2rem;justify-self:start;
     display:flex;align-items:center;justify-content:center;gap:0.55rem;
-    font-family:var(--font);font-size:0.69rem;letter-spacing:0.13em;text-align:center;
+    font-family:var(--font);font-size:0.69rem;letter-spacing:0.13em;text-align:left;
     color:oklch(0.90 0.02 95 / 0.55);background:transparent;border:0;border-radius:0;cursor:pointer;
-    padding:0.45rem 0.55rem;text-shadow:0 2px 10px oklch(0.04 0.015 220);
+    padding:0.4rem 0;text-shadow:0 2px 10px oklch(0.04 0.015 220);
     transition:color .3s,background .3s;
   }
   .aihook::before{content:none}
@@ -303,19 +303,15 @@
     #veil,#wake,#announce,#stateword,#journal,#hint,canvas#stage{transition-duration:.18s}
   }
   @media (max-width:700px){
-    #veil{
-      grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto auto;
-      gap:1.1rem;padding:4.7rem 1.2rem 1.1rem;
-    }
+    #veil{padding:4.7rem 1.2rem 1.1rem;align-items:flex-start}
+    .veil-stack{gap:1.2rem}
     #veil::before{background-position:60% center;filter:saturate(0.82) contrast(1.02) brightness(0.90)}
     #veil::after{background:linear-gradient(180deg,oklch(0.05 0.018 225 / 0.42),oklch(0.06 0.02 220 / 0.22) 50%,oklch(0.04 0.014 225 / 0.64))}
-    .veil-brand{grid-column:1;grid-row:1;align-self:start;margin-top:2vh;max-width:100%}
     #veil h1{gap:0.35rem;max-width:100%}
     #veil h1 .title-prelude{font-size:clamp(0.75rem,3.5vw,0.95rem);letter-spacing:0.38em}
     #veil h1 .title-main{font-size:clamp(3.5rem,16.5vw,5.2rem);line-height:0.9}
     #veil .sub{margin-top:1rem;font-size:0.94rem}
     #veil .premise{font-size:0.72rem;max-width:28rem}
-    .veil-menu{grid-column:1;grid-row:2;width:min(100%,22rem);margin-top:0;align-self:end;justify-self:start;transform:none}
     #chapter{top:1rem;left:0.8rem;max-width:calc(100vw - 5.4rem);font-size:0.88rem;letter-spacing:0.12em}
     #mute{top:0.7rem;right:0.7rem;width:2.5rem;height:2.5rem}
     #stateword{bottom:0.8rem;left:0.8rem;min-width:0;max-width:52vw;padding:0.55rem 0.75rem}
@@ -345,14 +341,16 @@
 <canvas id="stage" role="img" aria-label="An Alice dreamscape that changes with how the player moves"></canvas>
 
 <div id="veil">
-  <div class="veil-brand">
-    <h1><span class="title-prelude">Wandering</span><span class="title-main">Wonderland</span></h1>
-    <div class="sub">Collect <b>seven pages of dream</b>. Find the sleeping bed.</div>
-    <div class="premise">Your movement rewrites the dream.</div>
-  </div>
-  <div class="veil-menu" role="group" aria-label="Dream menu">
-    <button id="enter"><span class="enter-copy"><span class="enter-label">Enter the dream</span><span class="enter-note">Begin wandering</span></span><span class="enter-key" aria-hidden="true">ENTER</span></button>
-    <button id="aihook" class="aihook"></button>
+  <div class="veil-stack">
+    <div class="veil-brand">
+      <h1><span class="title-prelude">Wandering</span><span class="title-main">Wonderland</span></h1>
+      <div class="sub">Collect <b>seven pages of dream</b>. Find the sleeping bed.</div>
+      <div class="premise">Your movement rewrites the dream.</div>
+    </div>
+    <div class="veil-menu" role="group" aria-label="Dream menu">
+      <button id="enter"><span class="enter-copy"><span class="enter-label">Enter the dream</span><span class="enter-note">Begin wandering</span></span><span class="enter-key" aria-hidden="true">ENTER</span></button>
+      <button id="aihook" class="aihook"></button>
+    </div>
   </div>
 </div>
 
