@@ -2,7 +2,7 @@
 
 An adaptive Alice in Wonderland game where the player's movement reshapes the dream.
 
-[Play Wandering Wonderland](https://youngchen1233214399-afk.github.io/ai-game/)
+[Play Wandering Wonderland](https://aialicegame.netlify.app/wonderland.html)
 
 ## Controls
 
